@@ -3058,7 +3058,7 @@ close($fh);
 print "Loaded ".($current_addr/$WORD_SIZE)." instructions\n";
 ```
 
-### 5.3 Read Script
+### 5.2 Read Script
 
 ```
 #!/usr/bin/perl
