@@ -28,6 +28,7 @@ module RP_Reg_tb;
 	reg clk;
 	reg rst;
 	reg RP_en;
+	reg FIFO_EMPTY;
 	reg [7:0] RP_next;
 
 	// Outputs
@@ -38,6 +39,7 @@ module RP_Reg_tb;
 		.clk(clk), 
 		.rst(rst), 
 		.RP_en(RP_en), 
+		.FIFO_EMPTY(FIFO_EMPTY),
 		.RP_next(RP_next), 
 		.RP(RP)
 	);
@@ -49,6 +51,7 @@ module RP_Reg_tb;
 		clk = 1;
 		rst = 1;
 		RP_en = 0;
+		FIFO_EMPTY = 0;
 		RP_next = 0;
 
 		// Wait 100 ns for global reset to finish
@@ -58,27 +61,35 @@ module RP_Reg_tb;
 		// Add stimulus here
 		@(posedge clk);
 		RP_en = 1;
+		FIFO_EMPTY = 0;
 		RP_next = 8'd0;
 
 		@(posedge clk);
 		RP_en = 1;
+		FIFO_EMPTY = 0;
 		RP_next = 8'd1;
 
 		@(posedge clk);
 		RP_en = 1;
+		FIFO_EMPTY = 1;
 		RP_next = 8'd2;
 
 		@(posedge clk);
 		RP_en = 1;
+		FIFO_EMPTY = 0;
 		RP_next = 8'd3;
 
 		@(posedge clk);
 		RP_en = 0;
+		FIFO_EMPTY = 1;
 		RP_next = 8'd4;
 
 		@(posedge clk);
 		RP_en = 0;
+		FIFO_EMPTY = 0;
 		RP_next = 8'd4;
+
+		@(posedge clk);
 
 		@(posedge clk);
 		$stop;

@@ -7,7 +7,7 @@
 // \   \   \/     Version : 10.1
 //  \   \         Application : sch2verilog
 //  /   /         Filename : Pipeline_demo.vf
-// /___/   /\     Timestamp : 03/08/2025 16:58:33
+// /___/   /\     Timestamp : 03/08/2025 19:08:44
 // \   \  /  \ 
 //  \___\/\___\ 
 //
@@ -29,6 +29,12 @@ module Pipeline_demo(clk,
                      ONE, 
                      pkt_in, 
                      rst, 
+                     rst_FIFO, 
+                     FIFO_almost_empty, 
+                     FIFO_almost_full, 
+                     FIFO_depth, 
+                     FIFO_EMPTY, 
+                     FIFO_FULL, 
                      pkt_out);
 
     input clk;
@@ -40,6 +46,12 @@ module Pipeline_demo(clk,
     input [63:0] ONE;
     input [63:0] pkt_in;
     input rst;
+    input rst_FIFO;
+   output FIFO_almost_empty;
+   output FIFO_almost_full;
+   output [7:0] FIFO_depth;
+   output FIFO_EMPTY;
+   output FIFO_FULL;
    output [63:0] pkt_out;
    
    wire ADDI_EX;
@@ -120,8 +132,12 @@ module Pipeline_demo(clk,
    wire WRE_ID;
    wire WRE_M;
    wire WRE_WB;
+   wire FIFO_FULL_DUMMY;
+   wire FIFO_EMPTY_DUMMY;
    wire [63:0] pkt_out_DUMMY;
    
+   assign FIFO_EMPTY = FIFO_EMPTY_DUMMY;
+   assign FIFO_FULL = FIFO_FULL_DUMMY;
    assign pkt_out[63:0] = pkt_out_DUMMY[63:0];
    PC XLXI_1 (.clk(clk), 
               .PC_next(PC_next[63:0]), 
@@ -273,7 +289,8 @@ module Pipeline_demo(clk,
                            .SW_M(SW_M), 
                            .D_addr(D_addr_src_MUX_out[7:0]));
    WP_Reg XLXI_26 (.clk(clk), 
-                   .rst(rst), 
+                   .FIFO_FULL(FIFO_FULL_DUMMY), 
+                   .rst(rst_FIFO), 
                    .WP_en(WP_en), 
                    .WP_next(WP_next[7:0]), 
                    .WP(WP[7:0]));
@@ -286,9 +303,10 @@ module Pipeline_demo(clk,
    WP_Controller XLXI_29 (.mode_code(mode_code[1:0]), 
                           .WP_en(WP_en));
    RP_Reg XLXI_30 (.clk(clk), 
+                   .FIFO_EMPTY(FIFO_EMPTY_DUMMY), 
                    .RP_en(RP_en), 
                    .RP_next(RP_next[7:0]), 
-                   .rst(rst), 
+                   .rst(rst_FIFO), 
                    .RP(RP[7:0]));
    RP_addr_MUX XLXI_31 (.RP(RP[7:0]), 
                         .RP_ctrl(RP_en), 
@@ -344,4 +362,13 @@ module Pipeline_demo(clk,
                                .Offset_WB(Offset_WB[63:0]), 
                                .SUBI_WB(SUBI_WB), 
                                .RF_WB_Din(RF_Din[63:0]));
+   FIFO_state_controller XLXI_41 (.clk(clk), 
+                                  .RP(RP[7:0]), 
+                                  .rst_FIFO(rst_FIFO), 
+                                  .WP(WP[7:0]), 
+                                  .depth(FIFO_depth[7:0]), 
+                                  .FIFO_almost_empty(FIFO_almost_empty), 
+                                  .FIFO_almost_full(FIFO_almost_full), 
+                                  .FIFO_EMPTY(FIFO_EMPTY_DUMMY), 
+                                  .FIFO_FULL(FIFO_FULL_DUMMY));
 endmodule

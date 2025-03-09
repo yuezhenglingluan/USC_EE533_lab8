@@ -5,6 +5,7 @@ module RP_Reg
     input clk,
     input rst,
     input RP_en,
+    input FIFO_EMPTY,
     input [7:0] RP_next,
 
     output reg [7:0] RP
@@ -14,7 +15,7 @@ module RP_Reg
         if (rst) begin
             RP <= 0;
         end
-        else if(RP_en) begin
+        else if(RP_en && !FIFO_EMPTY) begin
             RP <= RP_next;
         end
     end

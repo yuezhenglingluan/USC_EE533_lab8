@@ -1,0 +1,8 @@
+64'h4600004000001C46  // Version, HLEN, Service, Total Length, Identification
+64'h4000040600000A00  // Flags, Fragment Offset, TTL, Protocol, Header Checksum (2A6D)
+64'h0D030A000E030000  // Source IP (10.0.13.3), Destination IP (10.0.14.3), Option Field
+64'h0000000000000004  // Payload: Array Size (4)
+64'h0000000000000004  // Payload: Element 1 (4)
+64'h0000000000000003  // Payload: Element 2 (3)
+64'h0000000000000002  // Payload: Element 3 (2)
+64'h0000000000000001  // Payload: Element 4 (1)

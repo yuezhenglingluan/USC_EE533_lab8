@@ -8,6 +8,6 @@ module WME_OR
     output WME
 );
 
-    assign WME = WME_EX || WP_en;
+    assign WME = WME_M || WP_en;
 
 endmodule

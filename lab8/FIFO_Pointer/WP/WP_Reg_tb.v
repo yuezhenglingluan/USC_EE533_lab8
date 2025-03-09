@@ -28,6 +28,7 @@ module WP_Reg_tb;
 	reg clk;
 	reg rst;
 	reg WP_en;
+	reg FIFO_FULL;
 	reg [7:0] WP_next;
 
 	// Outputs
@@ -38,6 +39,7 @@ module WP_Reg_tb;
 		.clk(clk), 
 		.rst(rst), 
 		.WP_en(WP_en), 
+		.FIFO_FULL(FIFO_FULL),
 		.WP_next(WP_next), 
 		.WP(WP)
 	);
@@ -49,6 +51,7 @@ module WP_Reg_tb;
 		clk = 1;
 		rst = 1;
 		WP_en = 0;
+		FIFO_FULL = 0;
 		WP_next = 0;
 
 		// Wait 100 ns for global reset to finish
@@ -58,26 +61,32 @@ module WP_Reg_tb;
 		// Add stimulus here
 		@(posedge clk);
 		WP_en = 1;
+		FIFO_FULL = 0;
 		WP_next = 8'd1;
 
 		@(posedge clk);
 		WP_en = 1;
+		FIFO_FULL = 0;
 		WP_next = 8'd2;
 
 		@(posedge clk);
 		WP_en = 1;
+		FIFO_FULL = 1;
 		WP_next = 8'd8;
 
 		@(posedge clk);
 		WP_en = 0;
+		FIFO_FULL = 0;
 		WP_next = 8'd3;
 
 		@(posedge clk);
 		WP_en = 0;
+		FIFO_FULL = 1;
 		WP_next = 8'd2;
 
 		@(posedge clk);
 		WP_en = 1;
+		FIFO_FULL = 0;
 		WP_next = 8'd9;
 
 		@(posedge clk);
