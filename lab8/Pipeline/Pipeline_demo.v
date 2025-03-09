@@ -7,7 +7,7 @@
 // \   \   \/     Version : 10.1
 //  \   \         Application : sch2verilog
 //  /   /         Filename : Pipeline_demo.vf
-// /___/   /\     Timestamp : 03/08/2025 20:13:31
+// /___/   /\     Timestamp : 03/09/2025 03:21:43
 // \   \  /  \ 
 //  \___\/\___\ 
 //
@@ -75,7 +75,9 @@ module Pipeline_demo(clk,
                      Offset_WB, 
                      OP_CODE_ID, 
                      PC, 
+                     PC_ctrl, 
                      PC_next, 
+                     PC_plus_1, 
                      pkt_out, 
                      RF_Din, 
                      RP_en, 
@@ -164,7 +166,9 @@ module Pipeline_demo(clk,
    output [63:0] Offset_WB;
    output [5:0] OP_CODE_ID;
    output [63:0] PC;
+   output PC_ctrl;
    output [63:0] PC_next;
+   output [63:0] PC_plus_1;
    output [63:0] pkt_out;
    output [63:0] RF_Din;
    output RP_en;
@@ -200,8 +204,6 @@ module Pipeline_demo(clk,
    
    wire [3:0] ALU_OP_ID;
    wire [15:0] Offset_ID_before_Extend;
-   wire PC_ctrl;
-   wire [63:0] PC_reg;
    wire [7:0] RP;
    wire [7:0] RP_next;
    wire WME_ID;
@@ -232,6 +234,7 @@ module Pipeline_demo(clk,
    wire [31:0] Instruction_IF_DUMMY;
    wire [63:0] Offset_MUX_out_DUMMY;
    wire [63:0] rs_data_M_DUMMY;
+   wire PC_ctrl_DUMMY;
    wire [63:0] ALU_result_M_DUMMY;
    wire MOVI_WB_DUMMY;
    wire WRE_EX_DUMMY;
@@ -273,6 +276,7 @@ module Pipeline_demo(clk,
    wire LW_WB_DUMMY;
    wire LW_EX_DUMMY;
    wire MOVI_ID_DUMMY;
+   wire [63:0] PC_plus_1_DUMMY;
    wire WME_M_DUMMY;
    wire [5:0] OP_CODE_ID_DUMMY;
    wire WRE_M_DUMMY;
@@ -321,7 +325,9 @@ module Pipeline_demo(clk,
    assign Offset_WB[63:0] = Offset_WB_DUMMY[63:0];
    assign OP_CODE_ID[5:0] = OP_CODE_ID_DUMMY[5:0];
    assign PC[63:0] = PC_DUMMY[63:0];
+   assign PC_ctrl = PC_ctrl_DUMMY;
    assign PC_next[63:0] = PC_next_DUMMY[63:0];
+   assign PC_plus_1[63:0] = PC_plus_1_DUMMY[63:0];
    assign pkt_out[63:0] = pkt_out_DUMMY[63:0];
    assign RF_Din[63:0] = RF_Din_DUMMY[63:0];
    assign RP_en = RP_en_DUMMY;
@@ -354,14 +360,14 @@ module Pipeline_demo(clk,
    PC XLXI_1 (.clk(clk), 
               .PC_next(PC_next_DUMMY[63:0]), 
               .rst(rst), 
-              .PC(PC_reg[63:0]));
+              .PC(PC_DUMMY[63:0]));
    PC_plus_1 XLXI_2 (.ONE(ONE[63:0]), 
                      .PC(PC_DUMMY[63:0]), 
-                     .PC_next(PC_next_DUMMY[63:0]));
+                     .PC_next(PC_plus_1_DUMMY[63:0]));
    PC_MUX XLXI_3 (.BTA(Offset_ID_DUMMY[63:0]), 
-                  .PC_ctrl(PC_ctrl), 
-                  .PC_next_in(PC_reg[63:0]), 
-                  .PC_next_out(PC_DUMMY[63:0]));
+                  .PC_ctrl(PC_ctrl_DUMMY), 
+                  .PC_next_in(PC_plus_1_DUMMY[63:0]), 
+                  .PC_next_out(PC_next_DUMMY[63:0]));
    I_MEM XLXI_7 (.addra(PC_DUMMY[8:0]), 
                  .addrb(Instr_IN_addr[8:0]), 
                  .clka(clk), 
@@ -396,7 +402,7 @@ module Pipeline_demo(clk,
                                   .J_ID(J_ID_DUMMY), 
                                   .rs_data(rs_data_ID_DUMMY[63:0]), 
                                   .rt_data(rt_data_ID_DUMMY[63:0]), 
-                                  .PC_ctrl(PC_ctrl));
+                                  .PC_ctrl(PC_ctrl_DUMMY));
    ID_EX_Reg XLXI_12 (.ADDI_ID(ADDI_ID_DUMMY), 
                       .ALU_OP_ID(ALU_OP_ID[3:0]), 
                       .clk(clk), 
@@ -478,7 +484,7 @@ module Pipeline_demo(clk,
    HELN_Reg XLXI_19 (.clk(clk), 
                      .HLEN_in(HLEN[63:0]), 
                      .HLEN_Reg_write_en(WP_en_DUMMY), 
-                     .rst(rst), 
+                     .rst_FIFO(rst_FIFO), 
                      .HLEN_out(HLEN_out_DUMMY[63:0]));
    HLEN_Offset_Adder XLXI_21 (.HLEN(HLEN_out_DUMMY[63:0]), 
                               .Offset(Offset_EX_DUMMY[63:0]), 

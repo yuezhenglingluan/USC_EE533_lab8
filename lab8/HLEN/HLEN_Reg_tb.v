@@ -26,17 +26,17 @@ module HLEN_Reg_tb;
 
 	// Inputs
 	reg clk;
-	reg rst;
+	reg rst_FIFO;
 	reg HLEN_Reg_write_en;
 	reg [63:0] HLEN_in;
 
 	// Outputs
-	wire [63:0] HLEN_out;
+	wire [63:0] HLEN;
 
 	// Instantiate the Unit Under Test (UUT)
 	HELN_Reg uut (
 		.clk(clk), 
-		.rst(rst), 
+		.rst_FIFO(rst_FIFO), 
 		.HLEN_Reg_write_en(HLEN_Reg_write_en), 
 		.HLEN_in(HLEN_in), 
 		.HLEN_out(HLEN_out)
@@ -47,13 +47,13 @@ module HLEN_Reg_tb;
 	initial begin
 		// Initialize Inputs
 		clk = 1;
-		rst = 1;
+		rst_FIFO = 1;
 		HLEN_Reg_write_en = 0;
 		HLEN_in = 0;
 
 		// Wait 100 ns for global reset to finish
 		@(posedge clk);
-		rst = 0;
+		rst_FIFO = 0;
         
 		// Add stimulus here
 		@(posedge clk);

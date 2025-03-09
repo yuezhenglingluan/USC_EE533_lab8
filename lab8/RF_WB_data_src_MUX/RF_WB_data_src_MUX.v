@@ -14,9 +14,14 @@ module RF_WB_data_src_MUX
     output [63:0] RF_WB_Din
 );
 
+    wire MUX_1_ctrl;
+    wire MUX_2_ctrl;
     wire [63:0] temp;
 
-    assign temp = (~LW_WB && (ADDI_WB || SUBI_WB)) ? ALU_out_WB : D_out_WB;
-    assign RF_WB_Din = (MOVI_WB && ~LW_WB && ~ADDI_WB) ? Offset_WB : temp;
+    assign MUX_1_ctrl = ((ADDI_WB || SUBI_WB) && (!LW_WB)) ? 1 : 0;
+    assign MUX_2_ctrl = (MOVI_WB && !LW_WB) ? 1 : 0;
+
+    assign temp = MUX_1_ctrl ? ALU_out_WB : D_out_WB;
+    assign RF_WB_Din = MUX_2_ctrl ? Offset_WB : temp;
 
 endmodule

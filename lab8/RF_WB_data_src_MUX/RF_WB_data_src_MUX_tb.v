@@ -30,6 +30,7 @@ module RF_WB_data_src_MUX_tb;
 	reg [63:0] Offset_WB;
 	reg LW_WB;
 	reg ADDI_WB;
+	reg SUBI_WB;
 	reg MOVI_WB;
 
 	// Outputs
@@ -42,6 +43,7 @@ module RF_WB_data_src_MUX_tb;
 		.Offset_WB(Offset_WB), 
 		.LW_WB(LW_WB), 
 		.ADDI_WB(ADDI_WB), 
+		.SUBI_WB(SUBI_WB),
 		.MOVI_WB(MOVI_WB), 
 		.RF_WB_Din(RF_WB_Din)
 	);
@@ -53,6 +55,7 @@ module RF_WB_data_src_MUX_tb;
 		Offset_WB = 0;
 		LW_WB = 0;
 		ADDI_WB = 0;
+		SUBI_WB = 0;
 		MOVI_WB = 0;
 
 		// Wait 100 ns for global reset to finish
@@ -65,6 +68,7 @@ module RF_WB_data_src_MUX_tb;
 		Offset_WB = 64'd3;
 		LW_WB = 0;
 		ADDI_WB = 0;
+		SUBI_WB = 0;
 		MOVI_WB = 0;
 
 		#100;
@@ -73,6 +77,7 @@ module RF_WB_data_src_MUX_tb;
 		Offset_WB = 64'd3;
 		LW_WB = 1;
 		ADDI_WB = 0;
+		SUBI_WB = 0;
 		MOVI_WB = 0;
 
 		#100;
@@ -81,6 +86,7 @@ module RF_WB_data_src_MUX_tb;
 		Offset_WB = 64'd3;
 		LW_WB = 0;
 		ADDI_WB = 1;
+		SUBI_WB = 0;
 		MOVI_WB = 0;
 
 		#100;
@@ -89,15 +95,19 @@ module RF_WB_data_src_MUX_tb;
 		Offset_WB = 64'd3;
 		LW_WB = 0;
 		ADDI_WB = 0;
+		SUBI_WB = 1;
+		MOVI_WB = 0;
+
+
+		#100;
+		D_out_WB = 64'd1;
+		ALU_out_WB = 64'd2;
+		Offset_WB = 64'd3;
+		LW_WB = 0;
+		ADDI_WB = 0;
+		SUBI_WB = 0;
 		MOVI_WB = 1;
 
-		#100;
-		D_out_WB = 64'd1;
-		ALU_out_WB = 64'd2;
-		Offset_WB = 64'd3;
-		LW_WB = 0;
-		ADDI_WB = 0;
-		MOVI_WB = 0;
 
 		#100;
 		$stop;

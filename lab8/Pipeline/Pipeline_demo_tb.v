@@ -4,7 +4,7 @@
 // Company: 
 // Engineer:
 //
-// Create Date:   20:19:47 03/08/2025
+// Create Date:   03:23:07 03/09/2025
 // Design Name:   Pipeline_demo
 // Module Name:   E:/Documents and Settings/student/EE533_Lab8/EE533_Lab_8/Pipeline_demo_tb.v
 // Project Name:  EE533_Lab_8
@@ -82,7 +82,9 @@ module Pipeline_demo_tb;
 	wire [63:0] Offset_WB;
 	wire [5:0] OP_CODE_ID;
 	wire [63:0] PC;
+	wire PC_ctrl;
 	wire [63:0] PC_next;
+	wire [63:0] PC_plus_1;
 	wire [63:0] pkt_out;
 	wire [63:0] RF_Din;
 	wire RP_en;
@@ -173,7 +175,9 @@ module Pipeline_demo_tb;
 		.Offset_WB(Offset_WB), 
 		.OP_CODE_ID(OP_CODE_ID), 
 		.PC(PC), 
+		.PC_ctrl(PC_ctrl), 
 		.PC_next(PC_next), 
+		.PC_plus_1(PC_plus_1), 
 		.pkt_out(pkt_out), 
 		.RF_Din(RF_Din), 
 		.RP_en(RP_en), 
@@ -242,7 +246,7 @@ module Pipeline_demo_tb;
 
 		@(posedge clk);
 		mode_code = 2'b00;
-		pkt_in = 64'h0000000000000004;
+		pkt_in = 64'h0000000000000003;
 
 		@(posedge clk);
 		mode_code = 2'b00;
@@ -805,7 +809,96 @@ module Pipeline_demo_tb;
 		mode_code = 2'b10;
 
 		@(posedge clk);
-		rst = 1;
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
+		mode_code = 2'b10;
+
+		@(posedge clk);
 		mode_code = 2'b01;
 
 		@(posedge clk);
