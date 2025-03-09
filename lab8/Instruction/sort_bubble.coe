@@ -1,0 +1,15 @@
+04 80 10 00  # ldr r4, =array
+05 80 20 00  # ldr r5, =N
+0A 54 00 00  # ldr r5, [r5]
+0B 54 00 01  # sub r5, r5, #1
+04 60 00 00  # mov r6, #0
+05 68 00 03  # mov r8, r6, LSL #3
+06 94 00 00  # add r9, r4, r8
+0A A9 00 00  # ldr r10, [r9]
+0A B9 00 08  # ldr r11, [r9, #8]
+0B C5 A9 00  # sub r12, r10, r11
+08 C0 00 20  # ble no_swap
+0F B9 00 00  # str r11, [r9]
+0F A9 00 08  # str r10, [r9, #8]
+04 66 00 01  # add r6, r6, #1
+09 00 00 40  # b inner_loop

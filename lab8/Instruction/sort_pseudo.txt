@@ -1,0 +1,22 @@
+lw r0, array_addr
+lw r1, array_size
+subi r1, r1, #1
+mov r2, #0
+outer_loop:
+beq r2, r1, end
+addi r3, r2, #1
+inner_loop:
+bgt r3, r1, next_out
+lw r4, r0(r2)
+lw r5, r0(r3)
+blt r4, r5, no_swap
+sw r4, r0(r3)
+sw r5, r0(r2)
+no_swap:
+addi r3, r3, #1
+j inner_loop
+next_out:
+addi r2, r2, #1
+j outer_loop
+end:
+j end
