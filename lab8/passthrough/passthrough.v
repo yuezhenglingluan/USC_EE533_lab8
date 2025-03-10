@@ -45,26 +45,26 @@ module passthrough
    reg [1:0]          DRAM_MODE;        //10 for DRAM, 00 for fifo recieve,  01 for fifo send
 
    wire [31:0]        CMD_reg;        //software register
-   reg [31:0]        flag_reg;
+   wire [31:0]        flag_reg;
    
-   reg [31:0]        CMD_GET_IN;
+   wire [31:0]        CMD_GET_IN;
 
    reg [63:0]         pkt;
-   reg [63:0]         pkt_in;
+   wire[63:0]         pkt_in;
    
    wire [31:0]        inst_out;       //wires
    wire [8:0]         addr_out;
    wire               write_enable;
-   reg               pipline_rst;
+   wire               pipline_rst;
 
 
 
   //pipline part
-   wire                FIFO_almost_empty;
-   wire                FIFO_almost_full;
-   wire                FIFO_depth;
-   wire                FIFO_FULL;
-   wire                pkt_out;        
+   wire                FIFO_almost_empty
+   wire                FIFO_almost_full
+   wire                FIFO_depth
+   wire                FIFO_FULL
+   wire                pkt_out                      
 
 
 
@@ -134,71 +134,64 @@ module passthrough
     .FIFO_depth         (FIFO_depth),
     .FIFO_FULL          (FIFO_FULL),
     .pkt_out            (pkt_out)
-   );
+   )
 
 
     assign out_data = in_data;
-    assign out_ctrl = in_ctrl;
+    assign out_ctrl =in_ctrl;
     assign out_wr = in_wr;
     assign in_rdy = out_rdy;
 
 
-    // typedef enum logic[2:0]{
-    //     start = 3'b000,
-    //     Packet_Rec = 3'b001,
-    //     Inst_INIT = 3'b010,
-    //     Process = 3'b011,
-    //     Packet_send = 3'b100
-    // } state_t;
+    typedef enum logic[2:0]{
+        start = 3'b000,
+        Packet_Rec = 3'b001,
+        Inst_INIT = 3'b010,
+        Process = 3'b011,
+        Packet_send = 3'b100
+    } state_t;
 
-    // state_t state, next_state;
-
-    parameter start = 3'b000;
-    parameter Packet_Rec = 3'b001;
-    parameter Inst_INIT = 3'b010;
-    parameter Process = 3'b011;
-    parameter Packet_send = 3'b100;
-
-    reg [2:0] state, next_state;
-    
+    state_t state, next_state;
 
     always @(*) begin
       case (state)
-        start: next_state = Packet_Rec;
-        Packet_Rec: begin
+        start:
+            next_state = Packet_Rec;
+
+        Packet_Rec:
           if(pkt == 64'hXXXXXXXXXXXXX5)
             next_state = Inst_INIT;
           else
             next_state = Packet_Rec;
-        end
-        Inst_INIT: begin
+
+        Inst_INIT:
           if(flag_reg[3])
             next_state = Process;
           else
             next_state = Inst_INIT;
-        end
-        Process: begin
+
+        Process:
           if(DRAM_MODE == 2'b01)
               next_state = Packet_send;
           else
               next_state = Process;
-        end
-        Packet_send: begin
+        
+        Packet_send:
           if(flag_reg[4])
             next_state = Packet_Rec;
           else
             next_state = Packet_send;
-        end
       endcase 
     end
 
-always @(posedge clk or negedge reset) begin
-    if (~reset) begin
-        pkt <= 64'h00000000000005;
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        pkt == 64'h00000000000005
         DRAM_MODE <= 2'b00;
         CMD_GET_IN <= 0;
         pipline_rst <= 1'b0;
-    end else begin
+    end
+    else begin
         case (state)
             start: begin
                 DRAM_MODE <= 2'b00;
@@ -206,7 +199,8 @@ always @(posedge clk or negedge reset) begin
 
             Packet_Rec: begin
                 DRAM_MODE <= 2'b01;
-                pkt_in <= pkt;
+                pkt_in = pkt;
+
             end
 
             Inst_INIT: begin
@@ -229,9 +223,9 @@ always @(posedge clk or negedge reset) begin
                 pipline_rst <= 1'b1;
             end
         endcase
-    end
+        end
         
 
-end
+     end
 
 endmodule
