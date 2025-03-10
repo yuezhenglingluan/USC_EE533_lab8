@@ -38,24 +38,33 @@ module passthrough
       input                                clk
     );
 
-   reg [31:0]   hw_reg0;         //hardware register
-   reg [31:0]   addr_reg; 
+   reg [31:0]         hw_reg0;         //hardware register
+   reg [31:0]         addr_reg; 
 
 
-   reg [1:0]    DRAM_MODE;        //01 for DRAM, 00 for fifo recieve,  10 for fifo send
+   reg [1:0]          DRAM_MODE;        //10 for DRAM, 00 for fifo recieve,  01 for fifo send
 
-   wire [31:0]    CMD_reg;        //software register
-   wire [31:0]    flag_reg;
+   wire [31:0]        CMD_reg;        //software register
+   reg [31:0]        flag_reg;
    
-   wire [31:0]    CMD_GET_IN;
+   reg [31:0]        CMD_GET_IN;
+
+   reg [63:0]         pkt;
+   reg [63:0]         pkt_in;
    
-   
-   wire [31:0]    inst_out;       //wires
-   wire [8:0]     addr_out;
-   wire           write_enable;
-   wire           pipline_rst;
+   wire [31:0]        inst_out;       //wires
+   wire [8:0]         addr_out;
+   wire               write_enable;
+   reg               pipline_rst;
 
 
+
+  //pipline part
+   wire                FIFO_almost_empty;
+   wire                FIFO_almost_full;
+   wire                FIFO_depth;
+   wire                FIFO_FULL;
+   wire                pkt_out;        
 
 
 
@@ -105,83 +114,124 @@ module passthrough
     .write_enable       (write_enable),
     .flag_ready         (flag_reg[2]),
     .flag_reg           (flag_reg)
-   )
+   );
+
+   Pipeline_demo pipline(
+    .clk                (clk),
+    .rst                (pipline_rst),
+    .rst_FIFO           (rst),
+    .HLEN               (64'd3),
+    .Instr_IN           (inst_out),
+    .Instr_IN_addr      (addr_out),
+    .Instr_IN_en        (write_enable),
+    .mode_code          (DRAM_MODE),
+    .ONE                (64'd1),
+    .pkt_in             (pkt_in),
+
+    //output
+    .FIFO_almost_empty  (FIFO_almost_empty),
+    .FIFO_almost_full   (FIFO_almost_full),
+    .FIFO_depth         (FIFO_depth),
+    .FIFO_FULL          (FIFO_FULL),
+    .pkt_out            (pkt_out)
+   );
 
 
     assign out_data = in_data;
-    assign out_ctrl =in_ctrl;
+    assign out_ctrl = in_ctrl;
     assign out_wr = in_wr;
     assign in_rdy = out_rdy;
 
 
-    typedef enum logic[2:0]{
-        start = 3'b000
-        Packet_Rec = 3'b001,
-        Inst_INIT = 3'b010,
-        Process = 3'b011,
-        Packet_send = 3'b100
-    } state_t;
+    // typedef enum logic[2:0]{
+    //     start = 3'b000,
+    //     Packet_Rec = 3'b001,
+    //     Inst_INIT = 3'b010,
+    //     Process = 3'b011,
+    //     Packet_send = 3'b100
+    // } state_t;
 
-    state_t state, next_state;
+    // state_t state, next_state;
 
-    always @(posedge clk) begin
+    parameter start = 3'b000;
+    parameter Packet_Rec = 3'b001;
+    parameter Inst_INIT = 3'b010;
+    parameter Process = 3'b011;
+    parameter Packet_send = 3'b100;
+
+    reg [2:0] state, next_state;
+    
+
+    always @(*) begin
       case (state)
-        start:
-            next_state = Packet_Rec;
-
-        Packet_Rec:
-          if(DRAM_MODE == 2'b01)
+        start: next_state = Packet_Rec;
+        Packet_Rec: begin
+          if(pkt == 64'hXXXXXXXXXXXXX5)
             next_state = Inst_INIT;
           else
             next_state = Packet_Rec;
-
-        Inst_INIT:
+        end
+        Inst_INIT: begin
           if(flag_reg[3])
             next_state = Process;
           else
             next_state = Inst_INIT;
-
-        Process:
-          if(DRAM_MODE == 2'b10)
+        end
+        Process: begin
+          if(DRAM_MODE == 2'b01)
               next_state = Packet_send;
           else
               next_state = Process;
-        
-        Packet_send:
+        end
+        Packet_send: begin
           if(flag_reg[4])
             next_state = Packet_Rec;
           else
             next_state = Packet_send;
+        end
       endcase 
     end
 
-     always @(posedge clk) begin
+always @(posedge clk or negedge reset) begin
+    if (~reset) begin
+        pkt <= 64'h00000000000005;
+        DRAM_MODE <= 2'b00;
+        CMD_GET_IN <= 0;
+        pipline_rst <= 1'b0;
+    end else begin
         case (state)
-          start: begin
-          end
-          
+            start: begin
+                DRAM_MODE <= 2'b00;
+            end
 
-          Packet_Rec: begin
-            DRAM_MODE = 2'b00;
-          end
+            Packet_Rec: begin
+                DRAM_MODE <= 2'b01;
+                pkt_in <= pkt;
+            end
 
-          Inst_INIT: begin
-              DRAM_MODE = 2'B01;
-              CMD_GET_IN <= CMD_reg;
-              pipline_rst <= 1'b1;
-              //pipline_mode_input = DRAM_MODE
+            Inst_INIT: begin
+                DRAM_MODE <= 2'b10;
+                flag_reg[2] <= 1'b1;
+                CMD_GET_IN <= CMD_reg;
+                pipline_rst <= 1'b1;
+            end
 
-          end
+            Process: begin
+                pipline_rst <= 1'b0;
+            end
 
-          Process: begin
-              pipline_rst <= 1'b0;
-          end
+            Packet_send: begin
+                DRAM_MODE <= 2'b01;
+            end
 
-          Packet_send: begin
-            
-          end
+            default: begin
+                DRAM_MODE <= 2'b00;
+                pipline_rst <= 1'b1;
+            end
         endcase
+    end
+        
 
-     end
+end
 
 endmodule
