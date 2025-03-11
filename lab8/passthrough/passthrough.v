@@ -45,7 +45,7 @@ module passthrough
    reg [1:0]          DRAM_MODE;        //10 for DRAM, 00 for fifo recieve,  01 for fifo send
 
    wire [31:0]        CMD_reg;        //software register
-   reg [31:0]        flag_reg;
+   wire [31:0]        flag_reg;
    
    reg [31:0]        CMD_GET_IN;
 
@@ -166,7 +166,7 @@ module passthrough
       case (state)
         start: next_state = Packet_Rec;
         Packet_Rec: begin
-          if(pkt == 64'hXXXXXXXXXXXXX5)
+          if(pkt === 64'hXXXXXXXXXXXXX5)
             next_state = Inst_INIT;
           else
             next_state = Packet_Rec;
@@ -191,7 +191,8 @@ module passthrough
         end
       endcase 
     end
-
+reg flag_reg2;
+assign flag_reg[2] = flag_reg2;
 always @(posedge clk or negedge reset) begin
     if (~reset) begin
         pkt <= 64'h00000000000005;
@@ -211,7 +212,7 @@ always @(posedge clk or negedge reset) begin
 
             Inst_INIT: begin
                 DRAM_MODE <= 2'b10;
-                flag_reg[2] <= 1'b1;
+                flag_reg2 <= 1'b1;
                 CMD_GET_IN <= CMD_reg;
                 pipline_rst <= 1'b1;
             end
@@ -230,6 +231,8 @@ always @(posedge clk or negedge reset) begin
             end
         endcase
     end
+
+
         
 
 end
