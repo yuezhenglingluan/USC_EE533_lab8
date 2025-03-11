@@ -11,24 +11,34 @@ module instruction_fsm (
 );
 
     // 定义状态
-    typedef enum logic [2:0] {
-        IDLE  = 3'b000, // 等待 flag_ready = 1
-        FETCH = 3'b001, // 读取指令
-        SEND  = 3'b010, // 发送指令到 IRAM
-        INC   = 3'b011, // 地址递增
-        DONE  = 3'b100  // 传输完成，清 flag_reg[2]
-    } state_t;
+    // typedef enum logic [2:0] {
+    //     IDLE  = 3'b000, // 等待 flag_ready = 1
+    //     FETCH = 3'b001, // 读取指令
+    //     SEND  = 3'b010, // 发送指令到 IRAM
+    //     INC   = 3'b011, // 地址递增
+    //     DONE  = 3'b100  // 传输完成，清 flag_reg[2]
+    // } state_t;
 
-    state_t state, next_state;
+    // state_t state, next_state;
+
+    parameter IDLE  = 3'b000; // 等待 flag_ready = 1
+    parameter FETCH = 3'b001; // 读取指令
+    parameter SEND  = 3'b010; // 发送指令到 IRAM
+    parameter INC   = 3'b011; // 地址递增
+    parameter DONE  = 3'b100; // 传输完成，清 flag_reg[2]
+
+    reg [2:0] state, next_state;
+
 
     // **状态转换由 flag_reg[2] 控制，而非时钟**
     always @(*) begin
         case (state)
-            IDLE: 
+            IDLE: begin
                 if (flag_ready)  // 仅当 flag_reg[2] == 1 时启动
                     next_state = FETCH;
                 else
                     next_state = IDLE;
+            end
             
             FETCH: 
                 next_state = SEND; // 读取指令后，进入 SEND 以写入 IRAM
@@ -49,7 +59,7 @@ module instruction_fsm (
 
     // **数据传输逻辑**
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+        if (~rst_n) begin
             inst_out <= 32'b0;
             addr_out <= 9'b0;
             write_enable <= 1'b0;
@@ -58,7 +68,6 @@ module instruction_fsm (
             case (state)
                 IDLE: begin
                     inst_out <= 32'b0;
-            
                     write_enable <= 1'b0;
                 end
                 FETCH: begin
@@ -66,14 +75,19 @@ module instruction_fsm (
                     inst_out <= inst_in; // 读取指令
                     write_enable <= 1'b1; // 触发写入 IRAM
                 end
-                SEND: begin
+                SEND: 
                     write_enable <= 1'b0; // 关闭写入
-                end
-                INC: begin
+
+                INC: 
                     addr_out <= addr_in + 1; // **地址递增 4，准备写入下一个地址**
-                end
-                DONE: begin
+
+                DONE:
                     flag_reg[1] <= 1'b1;
+                default: begin
+                    inst_out <= 32'b0;
+                    addr_out <= 9'b0;
+                    write_enable <= 1'b0;
+                    flag_reg <= 32'b0;
                 end
             endcase
         end
